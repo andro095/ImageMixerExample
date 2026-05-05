@@ -11,9 +11,11 @@ AI Image Mixer is a high-performance, single-page web application built with **N
 - **External Integration:** n8n Webhook (configured via `.env.local`)
 
 ## Configuration
-Before running the application, create a `.env.local` file in the root directory with the following variable:
+Before running the application, create a `.env.local` file in the root directory with the following variables:
 ```env
 NEXT_PUBLIC_WEBHOOK_URL=https://your-n8n-instance.com/webhook/your-uuid
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ## Building and Running
@@ -27,14 +29,23 @@ All commands should be executed from the project root.
 ## Project Structure
 - `src/app/`: Contains the Next.js App Router structure.
   - `page.tsx`: The main entry point rendering the Image Mixer.
-  - `layout.tsx`: Root layout featuring the global navigation and dark header.
+  - `layout.tsx`: Root layout featuring the global navigation and dark header, now including dynamic sign-out.
+  - `login/`: Contains the authentication UI (`page.tsx`, `LoginForm.tsx`) and Server Actions (`actions.ts`).
 - `src/components/`: Reusable UI components.
   - `ImageMixer.tsx`: Core application logic, state management, and API integration.
+- `src/utils/supabase/`: Supabase client initialization utilities (`client.ts`, `server.ts`, `middleware.ts`).
+- `src/proxy.ts`: Next.js 16 Proxy (formerly middleware) handling route protection.
 - `public/`: Static assets.
 
 ## Development Conventions
 
-### 1. API Integration & Security
+### 1. Authentication & Route Protection
+- **Supabase:** Used for email/password authentication (`@supabase/supabase-js`, `@supabase/ssr`).
+- **Route Protection:** Main app routes (`/`) are protected by `src/proxy.ts`. Unauthenticated users are redirected to `/login`.
+- **User Metadata:** Name is captured during sign-up and stored in `options.data.full_name`.
+- **Sessions:** The root layout dynamically renders authentication state (e.g. Sign Out button).
+
+### 2. API Integration & Security
 The application communicates with a webhook that returns **raw binary data** (not JSON). 
 - **Environment Variables:** The webhook URL must be stored in `NEXT_PUBLIC_WEBHOOK_URL`.
 - **Blob Handling:** Always parse the response as a `Blob` and use `URL.createObjectURL(blob)`.

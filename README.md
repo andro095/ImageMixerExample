@@ -18,6 +18,8 @@ Build a single-page frontend application that allows a user to upload two images
 Create a `.env.local` file in the root directory:
 ```env
 NEXT_PUBLIC_WEBHOOK_URL=https://your-n8n-instance.com/webhook/your-uuid
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### 3. Installation

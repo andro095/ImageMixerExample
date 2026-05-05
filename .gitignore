@@ -40,3 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 dbpass.txt
+.gemini/settings.json
+\n.playwright-mcp/

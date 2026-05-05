@@ -31,22 +31,40 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
+  const isLogin = request.nextUrl.pathname.startsWith('/login')
+  const isAuth = request.nextUrl.pathname.startsWith('/auth')
+  const isPay = request.nextUrl.pathname.startsWith('/pay')
+
+  if (!user && !isLogin && !isAuth) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // If the user is logged in and trying to access the login page, redirect to home
-  if (user && request.nextUrl.pathname.startsWith('/login')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
+  if (user) {
+    // Query subscriptions table
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .single()
+
+    const hasActiveSubscription = subscription?.status === 'active'
+
+    if (!hasActiveSubscription && !isPay && !isLogin && !isAuth) {
+      // Redirect to /pay if no active subscription
+      const url = request.nextUrl.clone()
+      url.pathname = '/pay'
+      return NextResponse.redirect(url)
+    }
+
+    if (hasActiveSubscription && (isLogin || isPay)) {
+      // Redirect to home if they have an active subscription and try to access login or pay
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
