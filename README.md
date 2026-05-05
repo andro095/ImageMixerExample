@@ -17,7 +17,7 @@ Build a single-page frontend application that allows a user to upload two images
 ### 2. Configuration
 Create a `.env.local` file in the root directory:
 ```env
-NEXT_PUBLIC_WEBHOOK_URL=https://andro095.app.n8n.cloud/webhook/d8c73a05-57b4-4807-a623-331231c401bc
+NEXT_PUBLIC_WEBHOOK_URL=https://your-n8n-instance.com/webhook/your-uuid
 ```
 
 ### 3. Installation

@@ -13,7 +13,7 @@ AI Image Mixer is a high-performance, single-page web application built with **N
 ## Configuration
 Before running the application, create a `.env.local` file in the root directory with the following variable:
 ```env
-NEXT_PUBLIC_WEBHOOK_URL=https://andro095.app.n8n.cloud/webhook/d8c73a05-57b4-4807-a623-331231c401bc
+NEXT_PUBLIC_WEBHOOK_URL=https://your-n8n-instance.com/webhook/your-uuid
 ```
 
 ## Building and Running
