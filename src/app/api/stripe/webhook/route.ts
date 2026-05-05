@@ -34,11 +34,14 @@ export async function POST(req: Request) {
           const userId = session.client_reference_id
           const subscriptionId = session.subscription
           if (userId && subscriptionId) {
-            await supabaseAdmin.from('subscriptions').insert({
+            const { error } = await supabaseAdmin.from('subscriptions').insert({
               user_id: userId,
               stripe_subscription_id: subscriptionId,
               status: 'active',
             })
+            if (error) {
+              console.error('Error inserting subscription:', error)
+            }
           }
         }
         break
@@ -47,10 +50,13 @@ export async function POST(req: Request) {
       case 'customer.subscription.deleted': {
         const subscriptionId = session.id
         const status = session.status
-        await supabaseAdmin
+        const { error } = await supabaseAdmin
           .from('subscriptions')
           .update({ status })
           .eq('stripe_subscription_id', subscriptionId)
+        if (error) {
+          console.error('Error updating subscription:', error)
+        }
         break
       }
       default:
