@@ -4,6 +4,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
+const PRESET_CLOTHING = [
+  { url: '/pics/cap.png', name: 'Cap' },
+  { url: '/pics/images.jpeg', name: 'Outfit 1' },
+  { url: '/pics/necklace.png', name: 'Necklace' },
+  { url: '/pics/shirt_2.jpg', name: 'Shirt 2' },
+  { url: '/pics/shirt.jpeg', name: 'Shirt 1' },
+];
+
 const UploadZone = ({ 
   label, 
   preview, 
@@ -85,7 +93,6 @@ export default function ImageMixer() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (file: File | null) => void) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Security/Robustness: Limit file size (e.g., 5MB) and validate type
       const MAX_SIZE = 5 * 1024 * 1024;
       if (file.size > MAX_SIZE) {
         setError('File is too large. Max size is 5MB.');
@@ -97,6 +104,19 @@ export default function ImageMixer() {
       }
       setError(null);
       setter(file);
+    }
+  };
+
+  const handlePresetSelect = async (presetUrl: string, presetName: string) => {
+    try {
+      const response = await fetch(presetUrl);
+      if (!response.ok) throw new Error('Failed to fetch preset image');
+      const blob = await response.blob();
+      const file = new File([blob], presetName, { type: blob.type || 'image/jpeg' });
+      setImage2(file);
+    } catch (err) {
+      console.error(err);
+      setError('Could not load preset clothing.');
     }
   };
 
@@ -153,18 +173,38 @@ export default function ImageMixer() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div className="space-y-8">
           <UploadZone 
-            label="Image 1" 
+            label="Image 1 (Person)" 
             preview={preview1} 
             onSelect={(e) => handleFileChange(e, setImage1)} 
             inputRef={fileInputRef1}
           />
           <UploadZone 
-            label="Image 2" 
+            label="Image 2 (Clothing)" 
             preview={preview2} 
             onSelect={(e) => handleFileChange(e, setImage2)} 
             inputRef={fileInputRef2}
           />
           
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Try On Presets</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {PRESET_CLOTHING.map((preset) => (
+                <button
+                  key={preset.url}
+                  onClick={() => handlePresetSelect(preset.url, preset.name)}
+                  className="border border-gray-200 aspect-square hover:border-black transition-colors overflow-hidden group relative"
+                  title={preset.name}
+                >
+                  <img 
+                    src={preset.url} 
+                    alt={preset.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button 
             onClick={handleGenerate}
             disabled={!image1 || !image2 || isGenerating}
